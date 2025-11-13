@@ -1,11 +1,13 @@
 # Text Package
 
-This package manages all UI text and messages for docktidy, with support for future internationalization (i18n).
+This package manages all UI text and messages for docktidy, with infrastructure for future internationalization (i18n).
+
+**Note:** Locale switching is currently a TODO. Only English is implemented. SetLocale/GetLocale methods exist for API design but adding new locales requires code changes.
 
 ## Structure
 
 ```md
-internal/text/
+pkg/text/
 ├── text.go       # Core text management and locale switching
 ├── en.go         # English translations
 └── README.md     # This file
@@ -14,7 +16,7 @@ internal/text/
 ## Usage
 
 ```go
-import "github.com/thommorais/docktidy/internal/text"
+import "github.com/thommorais/docktidy/pkg/text"
 
 // Create text instance with default locale (English)
 t := text.Default()
@@ -22,8 +24,8 @@ t := text.Default()
 // Get a translated string
 title := t.Get(text.KeyAppTitle)
 
-// Change locale (future)
-t.SetLocale(text.LocaleES)
+// TODO: Locale switching not yet implemented
+// t.SetLocale(text.LocaleES) // Would fall back to English
 ```
 
 ## Adding New Text
@@ -52,7 +54,9 @@ var translations = map[Locale]map[string]string{
 message := t.Get(text.KeyMyNewText)
 ```
 
-## Adding a New Locale
+## Adding a New Locale (TODO - Future Feature)
+
+**Note:** This is currently not implemented. The steps below describe the intended design.
 
 1. Create a new file (e.g., `es.go` for Spanish)
 2. Add the locale constant to `text.go`:
@@ -60,7 +64,7 @@ message := t.Get(text.KeyMyNewText)
 ```go
 const (
     LocaleEN Locale = "en"
-    LocaleES Locale = "es"
+    LocaleES Locale = "es" // TODO: Not yet implemented
 )
 ```
 

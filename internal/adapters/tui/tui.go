@@ -5,7 +5,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/thommorais/docktidy/internal/text"
+	"github.com/thommorais/docktidy/pkg/text"
 )
 
 const (
@@ -15,14 +15,17 @@ const (
 	colorText      = "#FAFAFA"
 )
 
+// App is the TUI application wrapper for the Bubbletea program.
 type App struct {
 	program *tea.Program
 }
 
+// New creates a new TUI application instance.
 func New() *App {
 	return &App{}
 }
 
+// Run starts the TUI application and blocks until it exits.
 func (a *App) Run() error {
 	p := tea.NewProgram(initialModel(), tea.WithAltScreen())
 	a.program = p

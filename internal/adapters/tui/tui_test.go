@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/thommorais/docktidy/internal/text"
+	"github.com/thommorais/docktidy/pkg/text"
 )
 
 func TestNew(t *testing.T) {
@@ -74,26 +74,38 @@ func TestModelUpdate_WindowSizeMsg(t *testing.T) {
 
 func TestModelUpdate_QuitKeys(t *testing.T) {
 	tests := []struct {
-		name string
-		key  string
+		name   string
+		keyMsg tea.KeyMsg
 	}{
-		{"q key", "q"},
-		{"esc key", "esc"},
-		{"ctrl+c", "ctrl+c"},
+		{
+			name: "q key",
+			keyMsg: tea.KeyMsg{
+				Type:  tea.KeyRunes,
+				Runes: []rune{'q'},
+			},
+		},
+		{
+			name: "esc key",
+			keyMsg: tea.KeyMsg{
+				Type: tea.KeyEsc,
+			},
+		},
+		{
+			name: "ctrl+c",
+			keyMsg: tea.KeyMsg{
+				Type: tea.KeyCtrlC,
+			},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := initialModel()
 
-			msg := tea.KeyMsg{
-				Type: tea.KeyRunes,
-			}
+			_, cmd := m.Update(tt.keyMsg)
 
-			_, cmd := m.Update(msg)
-
-			if cmd == nil && (tt.key == "q" || tt.key == "esc" || tt.key == "ctrl+c") {
-				t.Skip("KeyMsg construction for testing requires more setup")
+			if cmd == nil {
+				t.Errorf("Update(%s) returned nil cmd, want tea.Quit", tt.name)
 			}
 		})
 	}
