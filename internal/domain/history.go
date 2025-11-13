@@ -12,8 +12,8 @@ type UsageHistory struct {
 
 // PruneHistory tracks pruning operations
 type PruneHistory struct {
-	ID          string
-	Timestamp   time.Time
-	Result      PruneResult
-	Options     PruneOptions
+	ID        string
+	Timestamp time.Time
+	Result    PruneResult
+	Options   PruneOptions
 }

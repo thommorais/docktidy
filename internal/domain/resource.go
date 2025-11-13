@@ -14,23 +14,23 @@ const (
 
 // Resource represents a Docker resource
 type Resource struct {
-	ID          string
-	Type        ResourceType
-	Name        string
-	Size        int64
-	CreatedAt   time.Time
-	LastUsed    time.Time
-	InUse       bool
-	Labels      map[string]string
-	Tags        []string
+	ID        string
+	Type      ResourceType
+	Name      string
+	Size      int64
+	CreatedAt time.Time
+	LastUsed  time.Time
+	InUse     bool
+	Labels    map[string]string
+	Tags      []string
 }
 
 // PruneCandidate represents a resource that can be pruned
 type PruneCandidate struct {
 	Resource
-	Reason      string
+	Reason       string
 	DaysSinceUse int
-	RiskLevel   RiskLevel
+	RiskLevel    RiskLevel
 }
 
 // RiskLevel indicates the safety level of pruning a resource

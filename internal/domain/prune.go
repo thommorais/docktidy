@@ -9,10 +9,10 @@ type PruneResult struct {
 
 // PruneOptions configures pruning behavior
 type PruneOptions struct {
-	DryRun         bool
-	Force          bool
-	OlderThanDays  int
-	IncludeTypes   []ResourceType
-	ExcludeLabels  []string
-	MinSizeBytes   int64
+	DryRun        bool
+	Force         bool
+	OlderThanDays int
+	IncludeTypes  []ResourceType
+	ExcludeLabels []string
+	MinSizeBytes  int64
 }
