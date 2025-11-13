@@ -132,11 +132,6 @@ func (m model) View() string {
 	titleStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color(colorPrimary)).
-		MarginBottom(1)
-
-	subtitleStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color(colorAccent)).
-		Italic(true).
 		MarginBottom(2)
 
 	messageStyle := lipgloss.NewStyle().
@@ -147,11 +142,6 @@ func (m model) View() string {
 	featureStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colorText)).
 		PaddingLeft(4)
-
-	philosophyStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color(colorText)).
-		Padding(0, 2).
-		MarginBottom(2)
 
 	helpStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colorSecondary)).
@@ -172,10 +162,7 @@ func (m model) View() string {
 
 	var content string
 
-	content += titleStyle.Render(m.text.Get(text.KeyAppTitle))
-	content += "\n"
-
-	content += subtitleStyle.Render(m.text.Get(text.KeyAppSubtitle))
+	content += titleStyle.Render(m.text.Get(text.KeyAppTagline))
 	content += "\n\n"
 
 	content += messageStyle.Render(m.text.Get(text.KeyWelcomeMessage))
@@ -189,9 +176,6 @@ func (m model) View() string {
 	content += "\n"
 	content += featureStyle.Render(fmt.Sprintf("  * %s", m.text.Get(text.KeyWelcomeFeature4)))
 	content += "\n\n"
-
-	content += philosophyStyle.Render(m.text.Get(text.KeyWelcomePhilosophy))
-	content += "\n"
 
 	renderedStatus := statusStyle.Render(m.dockerStatus.Message)
 	if m.width > 0 {

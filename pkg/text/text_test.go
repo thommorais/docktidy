@@ -58,14 +58,8 @@ func TestGet(t *testing.T) {
 		{
 			name:   "existing key in English",
 			locale: LocaleEN,
-			key:    KeyAppTitle,
-			want:   "docktidy - Docker Resource Manager",
-		},
-		{
-			name:   "another existing key in English",
-			locale: LocaleEN,
-			key:    KeyAppSubtitle,
-			want:   "Spark joy in your Docker environment",
+			key:    KeyAppTagline,
+			want:   "docktidy - Spark joy in your Docker environment",
 		},
 		{
 			name:   "help text key",
@@ -104,8 +98,8 @@ func TestGetWithInvalidLocale(t *testing.T) {
 	txt := New()
 	txt.SetLocale(Locale("invalid"))
 
-	got := txt.Get(KeyAppTitle)
-	want := "docktidy - Docker Resource Manager"
+	got := txt.Get(KeyAppTagline)
+	want := "docktidy - Spark joy in your Docker environment"
 
 	if got != want {
 		t.Errorf("Get() with invalid locale should fallback to default, got %v, want %v", got, want)
@@ -114,14 +108,12 @@ func TestGetWithInvalidLocale(t *testing.T) {
 
 func TestAllKeysHaveTranslations(t *testing.T) {
 	keys := []string{
-		KeyAppTitle,
-		KeyAppSubtitle,
+		KeyAppTagline,
 		KeyWelcomeMessage,
 		KeyWelcomeFeature1,
 		KeyWelcomeFeature2,
 		KeyWelcomeFeature3,
 		KeyWelcomeFeature4,
-		KeyWelcomePhilosophy,
 		KeyHelpQuit,
 		KeyDockerStatusHealthy,
 		KeyDockerStatusDegraded,

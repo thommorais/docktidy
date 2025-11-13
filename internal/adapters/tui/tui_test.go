@@ -128,14 +128,11 @@ func TestModelView(t *testing.T) {
 	}
 
 	expectedContent := []string{
-		"docktidy - Docker Resource Manager",
-		"Spark joy in your Docker environment",
-		"Welcome to docktidy",
+		"docktidy - Spark joy in your Docker environment",
 		"Interactive resource selection with risk levels",
 		"Usage history tracking to protect active resources",
 		"Dry-run mode to preview changes before applying",
 		"Detailed cleanup history and recovery commands",
-		"spark joy",
 		"Press 'q', 'esc', or ctrl+c to quit",
 	}
 
@@ -153,14 +150,14 @@ func TestModelView(t *testing.T) {
 func TestModelView_UsesTextPackage(t *testing.T) {
 	m := initialModel(defaultAppConfig())
 
-	title := m.text.Get(text.KeyAppTitle)
+	title := m.text.Get(text.KeyAppTagline)
 	if title == "" {
-		t.Error("text.Get(KeyAppTitle) returned empty string")
+		t.Error("text.Get(KeyAppTagline) returned empty string")
 	}
 
 	view := m.View()
 	if !strings.Contains(view, title) {
-		t.Errorf("View() does not contain title from text package: %q", title)
+		t.Errorf("View() does not contain tagline from text package: %q", title)
 	}
 }
 

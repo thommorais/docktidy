@@ -2,10 +2,8 @@ package text
 
 // Translation keys for English locale
 const (
-	// KeyAppTitle is the application title
-	KeyAppTitle = "app.title"
-	// KeyAppSubtitle is the application subtitle
-	KeyAppSubtitle = "app.subtitle"
+	// KeyAppTagline is the combined title/tagline
+	KeyAppTagline = "app.tagline"
 	// KeyWelcomeMessage is the welcome screen message
 	KeyWelcomeMessage = "welcome.message"
 	// KeyWelcomeFeature1 describes the first feature
@@ -16,8 +14,6 @@ const (
 	KeyWelcomeFeature3 = "welcome.feature3"
 	// KeyWelcomeFeature4 describes the fourth feature
 	KeyWelcomeFeature4 = "welcome.feature4"
-	// KeyWelcomePhilosophy describes the application philosophy
-	KeyWelcomePhilosophy = "welcome.philosophy"
 	// KeyHelpQuit shows how to quit the application
 	KeyHelpQuit = "help.quit"
 	// KeyDockerStatusHealthy is shown when Docker connection is healthy
@@ -30,20 +26,14 @@ const (
 
 var translations = map[Locale]map[string]string{
 	LocaleEN: {
-		KeyAppTitle:    "docktidy - Docker Resource Manager",
-		KeyAppSubtitle: "Spark joy in your Docker environment",
-
-		KeyWelcomeMessage: "Welcome to docktidy! A TUI tool for safely cleaning up Docker resources.\n\n" +
-			"This tool helps you identify and remove unused Docker containers, images,\n" +
+		KeyWelcomeMessage: "This tool helps you identify and remove unused Docker containers, images,\n" +
 			"volumes, and networks with confidence. Features include:",
 
+		KeyAppTagline:      "docktidy - Spark joy in your Docker environment",
 		KeyWelcomeFeature1: "Interactive resource selection with risk levels",
 		KeyWelcomeFeature2: "Usage history tracking to protect active resources",
 		KeyWelcomeFeature3: "Dry-run mode to preview changes before applying",
 		KeyWelcomeFeature4: "Detailed cleanup history and recovery commands",
-
-		KeyWelcomePhilosophy: "Built with the \"spark joy\" philosophy - clean your Docker environment\n" +
-			"with clarity and peace of mind.",
 
 		KeyHelpQuit: "Press 'q', 'esc', or ctrl+c to quit",
 
