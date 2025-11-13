@@ -69,14 +69,26 @@ docktidy
 
 - Go 1.21 or later
 - Docker running locally
-- [Air](https://github.com/cosmtrek/air) for hot reload (optional)
+- [Air](https://github.com/air-verse/air) for hot reload (optional)
+- [Cocogitto](https://docs.cocogitto.io/) for conventional commits (optional)
 
 ### Running with hot reload
 
 ```bash
-go install github.com/cosmtrek/air@latest
+go install github.com/air-verse/air@latest
 air
 ```
+
+### Contributing
+
+This project follows [Conventional Commits](https://www.conventionalcommits.org/). To set up commit hooks:
+
+```bash
+brew install cocogitto
+cog install-hook --all
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 ### Building
 

@@ -1,0 +1,23 @@
+# Cocogitto configuration
+# https://docs.cocogitto.io/
+
+[changelog]
+path = "CHANGELOG.md"
+template = "remote"
+remote = "github.com"
+repository = "docktidy"
+owner = "thommorais"
+
+[commit_types]
+feat = { changelog_title = "Features" }
+fix = { changelog_title = "Bug Fixes" }
+docs = { changelog_title = "Documentation" }
+style = { changelog_title = "Styling" }
+refactor = { changelog_title = "Refactoring" }
+perf = { changelog_title = "Performance" }
+test = { changelog_title = "Tests" }
+build = { changelog_title = "Build System" }
+ci = { changelog_title = "CI/CD" }
+chore = { changelog_title = "Miscellaneous" }
+revert = { changelog_title = "Reverts" }
+
