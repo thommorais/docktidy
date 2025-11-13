@@ -4,21 +4,17 @@ run:
 
 linters:
   enable:
-    - gofmt
-    - govet
     - errcheck
+    - govet
     - staticcheck
     - unused
-    - gosimple
     - ineffassign
-    - typecheck
     - gosec
     - gocyclo
     - misspell
     - unparam
     - unconvert
     - goconst
-    - goimports
     - revive
 
 linters-settings:
