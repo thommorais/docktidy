@@ -77,9 +77,8 @@ jobs:
         run: |
           wget https://github.com/cocogitto/cocogitto/releases/download/6.1.0/cocogitto-6.1.0-x86_64-unknown-linux-musl.tar.gz
           tar -xzf cocogitto-6.1.0-x86_64-unknown-linux-musl.tar.gz
-          find . -name cog -type f
-          sudo chmod +x ./cog || sudo chmod +x ./cocogitto-6.1.0/cog
-          sudo mv ./cog /usr/local/bin/ 2>/dev/null || sudo mv ./cocogitto-6.1.0/cog /usr/local/bin/
+          sudo chmod +x ./x86_64-unknown-linux-musl/cog
+          sudo mv ./x86_64-unknown-linux-musl/cog /usr/local/bin/
 
       - name: Check commits
         run: cog check
