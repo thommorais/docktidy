@@ -43,11 +43,24 @@ internal/
 
 ## Installation
 
+### Homebrew (macOS/Linux)
+
+```bash
+brew tap thommorais/tap
+brew install docktidy
+```
+
+### Download Binary
+
+Download the latest release for your platform from [GitHub Releases](https://github.com/thommorais/docktidy/releases).
+
+### Go Install
+
 ```bash
 go install github.com/thommorais/docktidy/cmd/docktidy@latest
 ```
 
-Or build from source:
+### Build from Source
 
 ```bash
 git clone https://github.com/thommorais/docktidy.git
@@ -65,40 +78,96 @@ docktidy
 
 ## Development
 
+### Quick Start
+
+```bash
+# Initial setup (installs tools and dependencies)
+make setup
+
+# Start development server with hot reload
+make dev
+
+# Run tests
+make test
+
+# Build binary
+make build
+```
+
+Run `make help` to see all available commands.
+
 ### Prerequisites
 
 - Go 1.21 or later
 - Docker running locally
-- [Air](https://github.com/air-verse/air) for hot reload (optional)
-- [Cocogitto](https://docs.cocogitto.io/) for conventional commits (optional)
+- Make
+- [Air](https://github.com/air-verse/air) for hot reload (auto-installed by `make setup`)
+- [Cocogitto](https://docs.cocogitto.io/) for conventional commits (auto-installed by `make setup`)
 
-### Running with hot reload
-
-```bash
-go install github.com/air-verse/air@latest
-air
-```
-
-### Contributing
-
-This project follows [Conventional Commits](https://www.conventionalcommits.org/). To set up commit hooks:
+### Common Development Tasks
 
 ```bash
-brew install cocogitto
-cog install-hook --all
-```
+# Start development with hot reload
+make dev
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+# Run tests with coverage
+make test-coverage
+
+# Run all checks (format, vet, lint, test)
+make check
+
+# Build and run
+make run
+
+# Create a commit interactively
+make commit
+```
 
 ### Building
 
 ```bash
+# Quick build
+make build
+
+# Or with Go directly
 go build -o docktidy ./cmd/docktidy
+
+# Install to GOPATH/bin
+make install
 ```
+
+### Contributing
+
+This project follows [Conventional Commits](https://www.conventionalcommits.org/).
+
+```bash
+# Create a commit interactively
+make commit
+
+# Or manually with git
+git commit -m "feat: add new feature"
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 ### Project Status
 
 This project is in initial setup phase. Core features are being developed incrementally.
+
+### Releases
+
+We use semantic versioning and automated releases. See [RELEASE.md](RELEASE.md) for details.
+
+```bash
+# Create a new release (auto-detects version from commits)
+make release
+
+# Dry run (see what would happen)
+make release-dry
+
+# Build release locally without publishing
+make release-snapshot
+```
 
 ## License
 

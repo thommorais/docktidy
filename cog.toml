@@ -1,6 +1,10 @@
 # Cocogitto configuration
 # https://docs.cocogitto.io/
 
+# Tag prefix for versions
+tag_prefix = "v"
+
+# Changelog configuration
 [changelog]
 path = "CHANGELOG.md"
 template = "remote"
