@@ -10,8 +10,6 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org/
 <type>(<scope>): <subject>
 
 <body>
-
-<footer>
 ```
 
 ### Types
