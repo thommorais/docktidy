@@ -1,3 +1,4 @@
+// Package domain contains core business entities and logic for docktidy.
 package domain
 
 import "time"
@@ -6,10 +7,14 @@ import "time"
 type ResourceType string
 
 const (
+	// ResourceTypeContainer represents a Docker container
 	ResourceTypeContainer ResourceType = "container"
-	ResourceTypeImage     ResourceType = "image"
-	ResourceTypeVolume    ResourceType = "volume"
-	ResourceTypeNetwork   ResourceType = "network"
+	// ResourceTypeImage represents a Docker image
+	ResourceTypeImage ResourceType = "image"
+	// ResourceTypeVolume represents a Docker volume
+	ResourceTypeVolume ResourceType = "volume"
+	// ResourceTypeNetwork represents a Docker network
+	ResourceTypeNetwork ResourceType = "network"
 )
 
 // Resource represents a Docker resource
@@ -37,7 +42,10 @@ type PruneCandidate struct {
 type RiskLevel string
 
 const (
-	RiskLevelSafe   RiskLevel = "safe"
+	// RiskLevelSafe indicates the resource can be safely removed
+	RiskLevelSafe RiskLevel = "safe"
+	// RiskLevelMedium indicates the resource should be reviewed before removal
 	RiskLevelMedium RiskLevel = "medium"
-	RiskLevelHigh   RiskLevel = "high"
+	// RiskLevelHigh indicates the resource is risky to remove
+	RiskLevelHigh RiskLevel = "high"
 )
