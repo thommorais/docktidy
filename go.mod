@@ -1,6 +1,6 @@
 module github.com/thommorais/docktidy
 
-go 1.25.3
+go 1.21
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
