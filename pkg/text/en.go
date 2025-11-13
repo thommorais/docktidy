@@ -1,15 +1,25 @@
 package text
 
+// Translation keys for English locale
 const (
-	KeyAppTitle          = "app.title"
-	KeyAppSubtitle       = "app.subtitle"
-	KeyWelcomeMessage    = "welcome.message"
-	KeyWelcomeFeature1   = "welcome.feature1"
-	KeyWelcomeFeature2   = "welcome.feature2"
-	KeyWelcomeFeature3   = "welcome.feature3"
-	KeyWelcomeFeature4   = "welcome.feature4"
+	// KeyAppTitle is the application title
+	KeyAppTitle = "app.title"
+	// KeyAppSubtitle is the application subtitle
+	KeyAppSubtitle = "app.subtitle"
+	// KeyWelcomeMessage is the welcome screen message
+	KeyWelcomeMessage = "welcome.message"
+	// KeyWelcomeFeature1 describes the first feature
+	KeyWelcomeFeature1 = "welcome.feature1"
+	// KeyWelcomeFeature2 describes the second feature
+	KeyWelcomeFeature2 = "welcome.feature2"
+	// KeyWelcomeFeature3 describes the third feature
+	KeyWelcomeFeature3 = "welcome.feature3"
+	// KeyWelcomeFeature4 describes the fourth feature
+	KeyWelcomeFeature4 = "welcome.feature4"
+	// KeyWelcomePhilosophy describes the application philosophy
 	KeyWelcomePhilosophy = "welcome.philosophy"
-	KeyHelpQuit          = "help.quit"
+	// KeyHelpQuit shows how to quit the application
+	KeyHelpQuit = "help.quit"
 )
 
 var translations = map[Locale]map[string]string{

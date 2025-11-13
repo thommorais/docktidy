@@ -1,3 +1,4 @@
+// Package main provides the CLI entry point for docktidy.
 package main
 
 import (
@@ -23,7 +24,7 @@ including containers, images, volumes, and networks.
 
 It tracks resource usage history and provides intelligent suggestions
 for what can be safely pruned to reclaim disk space.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		// Start the TUI
 		app := tui.New()
 		return app.Run()
@@ -33,7 +34,7 @@ for what can be safely pruned to reclaim disk space.`,
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print version information",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		fmt.Printf("docktidy %s\n", version)
 		fmt.Printf("  commit: %s\n", commit)
 		fmt.Printf("  built:  %s\n", date)

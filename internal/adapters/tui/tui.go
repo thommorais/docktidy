@@ -1,3 +1,4 @@
+// Package tui implements the terminal user interface adapter using Bubbletea.
 package tui
 
 import (
