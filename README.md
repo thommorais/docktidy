@@ -1,6 +1,6 @@
 # docktidy
 
-[![Coverage](https://img.shields.io/codecov/c/github/thommorais/docktidy/main?logo=codecov&label=coverage)](https://codecov.io/gh/thommorais/docktidy)
+[![Coverage Status](https://coveralls.io/repos/github/thommorais/docktidy/badge.svg?branch=main)](https://coveralls.io/github/thommorais/docktidy?branch=main)
 
 A TUI (Terminal User Interface) tool for safely cleaning up Docker resources.
 
