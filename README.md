@@ -1,5 +1,7 @@
 # docktidy
 
+[![codecov](https://codecov.io/gh/thommorais/docktidy/branch/main/graph/badge.svg)](https://codecov.io/gh/thommorais/docktidy)
+
 A TUI (Terminal User Interface) tool for safely cleaning up Docker resources.
 
 ## Features
