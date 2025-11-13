@@ -2,11 +2,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/thommorais/docktidy/internal/adapters/docker"
 	"github.com/thommorais/docktidy/internal/adapters/tui"
+	"github.com/thommorais/docktidy/pkg/text"
 )
 
 var (
@@ -25,8 +28,7 @@ including containers, images, volumes, and networks.
 It tracks resource usage history and provides intelligent suggestions
 for what can be safely pruned to reclaim disk space.`,
 	RunE: func(_ *cobra.Command, _ []string) error {
-		// Start the TUI
-		app := tui.New()
+		app := tui.New(tui.WithDockerStatus(dockerHealthStatus()))
 		return app.Run()
 	},
 }
@@ -53,4 +55,29 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
+}
+
+func dockerHealthStatus() tui.StatusMessage {
+	txt := text.Default()
+	status := tui.StatusMessage{
+		Message: txt.Get(text.KeyDockerStatusUnknown),
+		Level:   tui.StatusLevelUnknown,
+	}
+
+	svc, err := docker.NewService()
+	if err != nil {
+		status.Message = fmt.Sprintf("%s (%v)", txt.Get(text.KeyDockerStatusDegraded), err)
+		status.Level = tui.StatusLevelDegraded
+		return status
+	}
+
+	if err := svc.IsHealthy(context.Background()); err != nil {
+		status.Message = fmt.Sprintf("%s (%v)", txt.Get(text.KeyDockerStatusDegraded), err)
+		status.Level = tui.StatusLevelDegraded
+		return status
+	}
+
+	status.Message = txt.Get(text.KeyDockerStatusHealthy)
+	status.Level = tui.StatusLevelHealthy
+	return status
 }

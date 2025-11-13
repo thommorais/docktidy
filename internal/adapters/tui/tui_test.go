@@ -17,10 +17,14 @@ func TestNew(t *testing.T) {
 	if app.program != nil {
 		t.Error("New() should not initialize program until Run() is called")
 	}
+
+	if app.config.dockerStatus.Message == "" {
+		t.Error("New() config has empty docker status message")
+	}
 }
 
 func TestInitialModel(t *testing.T) {
-	m := initialModel()
+	m := initialModel(defaultAppConfig())
 
 	if m.width != 0 {
 		t.Errorf("initialModel() width = %d, want 0", m.width)
@@ -37,10 +41,14 @@ func TestInitialModel(t *testing.T) {
 	if m.text.GetLocale() != text.LocaleEN {
 		t.Errorf("initialModel() text locale = %v, want %v", m.text.GetLocale(), text.LocaleEN)
 	}
+
+	if m.dockerStatus.Message == "" {
+		t.Fatal("initialModel() docker status message is empty")
+	}
 }
 
 func TestModelInit(t *testing.T) {
-	m := initialModel()
+	m := initialModel(defaultAppConfig())
 	cmd := m.Init()
 
 	if cmd != nil {
@@ -49,7 +57,7 @@ func TestModelInit(t *testing.T) {
 }
 
 func TestModelUpdate_WindowSizeMsg(t *testing.T) {
-	m := initialModel()
+	m := initialModel(defaultAppConfig())
 
 	msg := tea.WindowSizeMsg{
 		Width:  100,
@@ -100,7 +108,7 @@ func TestModelUpdate_QuitKeys(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := initialModel()
+			m := initialModel(defaultAppConfig())
 
 			_, cmd := m.Update(tt.keyMsg)
 
@@ -112,7 +120,7 @@ func TestModelUpdate_QuitKeys(t *testing.T) {
 }
 
 func TestModelView(t *testing.T) {
-	m := initialModel()
+	m := initialModel(defaultAppConfig())
 	view := m.View()
 
 	if view == "" {
@@ -136,10 +144,14 @@ func TestModelView(t *testing.T) {
 			t.Errorf("View() missing expected content: %q", content)
 		}
 	}
+
+	if !strings.Contains(view, m.dockerStatus.Message) {
+		t.Errorf("View() missing docker status message %q", m.dockerStatus.Message)
+	}
 }
 
 func TestModelView_UsesTextPackage(t *testing.T) {
-	m := initialModel()
+	m := initialModel(defaultAppConfig())
 
 	title := m.text.Get(text.KeyAppTitle)
 	if title == "" {
@@ -153,7 +165,7 @@ func TestModelView_UsesTextPackage(t *testing.T) {
 }
 
 func TestModelView_AfterResize(t *testing.T) {
-	m := initialModel()
+	m := initialModel(defaultAppConfig())
 
 	msg := tea.WindowSizeMsg{
 		Width:  120,
@@ -170,6 +182,24 @@ func TestModelView_AfterResize(t *testing.T) {
 
 	if !strings.Contains(view, "docktidy") {
 		t.Error("View() after resize missing app name")
+	}
+}
+
+func TestWithDockerStatusOption(t *testing.T) {
+	status := StatusMessage{
+		Message: "Docker: Connected",
+		Level:   StatusLevelHealthy,
+	}
+
+	app := New(WithDockerStatus(status))
+
+	m := initialModel(app.config)
+	if m.dockerStatus.Message != status.Message {
+		t.Fatalf("dockerStatus.Message = %q, want %q", m.dockerStatus.Message, status.Message)
+	}
+
+	if m.dockerStatus.Level != status.Level {
+		t.Fatalf("dockerStatus.Level = %v, want %v", m.dockerStatus.Level, status.Level)
 	}
 }
 

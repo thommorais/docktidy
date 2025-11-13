@@ -74,6 +74,12 @@ func TestGet(t *testing.T) {
 			want:   "Press 'q', 'esc', or ctrl+c to quit",
 		},
 		{
+			name:   "docker status key",
+			locale: LocaleEN,
+			key:    KeyDockerStatusHealthy,
+			want:   "Docker: Connected to daemon",
+		},
+		{
 			name:   "non-existent key returns key itself",
 			locale: LocaleEN,
 			key:    "nonexistent.key",
@@ -117,6 +123,9 @@ func TestAllKeysHaveTranslations(t *testing.T) {
 		KeyWelcomeFeature4,
 		KeyWelcomePhilosophy,
 		KeyHelpQuit,
+		KeyDockerStatusHealthy,
+		KeyDockerStatusDegraded,
+		KeyDockerStatusUnknown,
 	}
 
 	txt := Default()

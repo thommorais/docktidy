@@ -14,35 +14,96 @@ const (
 	colorSecondary = "#626262"
 	colorAccent    = "#04B575"
 	colorText      = "#FAFAFA"
+	colorDanger    = "#EF476F"
 )
+
+// StatusLevel indicates the severity of a status message.
+type StatusLevel string
+
+const (
+	// StatusLevelUnknown is used when status has not been checked.
+	StatusLevelUnknown StatusLevel = "unknown"
+	// StatusLevelHealthy indicates everything is working as expected.
+	StatusLevelHealthy StatusLevel = "healthy"
+	// StatusLevelDegraded indicates an error or degraded state.
+	StatusLevelDegraded StatusLevel = "degraded"
+)
+
+// StatusMessage represents a message shown in the status area.
+type StatusMessage struct {
+	Message string
+	Level   StatusLevel
+}
+
+type appConfig struct {
+	dockerStatus StatusMessage
+}
+
+// AppOption configures an App instance.
+type AppOption func(*appConfig)
+
+// WithDockerStatus overrides the Docker status message shown in the welcome screen.
+func WithDockerStatus(status StatusMessage) AppOption {
+	return func(cfg *appConfig) {
+		cfg.dockerStatus = status
+	}
+}
+
+func defaultAppConfig() appConfig {
+	txt := text.Default()
+	return appConfig{
+		dockerStatus: StatusMessage{
+			Message: txt.Get(text.KeyDockerStatusUnknown),
+			Level:   StatusLevelUnknown,
+		},
+	}
+}
 
 // App is the TUI application wrapper for the Bubbletea program.
 type App struct {
 	program *tea.Program
+	config  appConfig
 }
 
 // New creates a new TUI application instance.
-func New() *App {
-	return &App{}
+func New(opts ...AppOption) *App {
+	cfg := defaultAppConfig()
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
+	return &App{
+		config: cfg,
+	}
 }
 
 // Run starts the TUI application and blocks until it exits.
 func (a *App) Run() error {
-	p := tea.NewProgram(initialModel(), tea.WithAltScreen())
+	p := tea.NewProgram(initialModel(a.config), tea.WithAltScreen())
 	a.program = p
 	_, err := p.Run()
 	return err
 }
 
 type model struct {
-	width  int
-	height int
-	text   *text.Text
+	width        int
+	height       int
+	text         *text.Text
+	dockerStatus StatusMessage
 }
 
-func initialModel() model {
+func initialModel(cfg appConfig) model {
+	status := cfg.dockerStatus
+	if status.Message == "" {
+		status = defaultAppConfig().dockerStatus
+	}
+	if status.Level == "" {
+		status.Level = StatusLevelUnknown
+	}
+
 	return model{
-		text: text.Default(),
+		text:         text.Default(),
+		dockerStatus: status,
 	}
 }
 
@@ -71,7 +132,6 @@ func (m model) View() string {
 	titleStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color(colorPrimary)).
-		Padding(1, 0, 0, 0).
 		MarginBottom(1)
 
 	subtitleStyle := lipgloss.NewStyle().
@@ -97,6 +157,19 @@ func (m model) View() string {
 		Foreground(lipgloss.Color(colorSecondary)).
 		Padding(1, 0, 0, 0)
 
+	statusStyle := lipgloss.NewStyle().
+		Padding(0, 2).
+		Faint(true)
+
+	switch m.dockerStatus.Level {
+	case StatusLevelHealthy:
+		statusStyle = statusStyle.Foreground(lipgloss.Color(colorAccent))
+	case StatusLevelDegraded:
+		statusStyle = statusStyle.Foreground(lipgloss.Color(colorDanger))
+	default:
+		statusStyle = statusStyle.Foreground(lipgloss.Color(colorSecondary))
+	}
+
 	var content string
 
 	content += titleStyle.Render(m.text.Get(text.KeyAppTitle))
@@ -118,6 +191,13 @@ func (m model) View() string {
 	content += "\n\n"
 
 	content += philosophyStyle.Render(m.text.Get(text.KeyWelcomePhilosophy))
+	content += "\n"
+
+	renderedStatus := statusStyle.Render(m.dockerStatus.Message)
+	if m.width > 0 {
+		renderedStatus = lipgloss.PlaceHorizontal(m.width, lipgloss.Right, renderedStatus)
+	}
+	content += renderedStatus
 	content += "\n\n"
 
 	content += helpStyle.Render(m.text.Get(text.KeyHelpQuit))

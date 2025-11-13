@@ -20,6 +20,12 @@ const (
 	KeyWelcomePhilosophy = "welcome.philosophy"
 	// KeyHelpQuit shows how to quit the application
 	KeyHelpQuit = "help.quit"
+	// KeyDockerStatusHealthy is shown when Docker connection is healthy
+	KeyDockerStatusHealthy = "status.docker.healthy"
+	// KeyDockerStatusDegraded is shown when Docker connection failed
+	KeyDockerStatusDegraded = "status.docker.degraded"
+	// KeyDockerStatusUnknown is shown before a health check runs
+	KeyDockerStatusUnknown = "status.docker.unknown"
 )
 
 var translations = map[Locale]map[string]string{
@@ -40,5 +46,9 @@ var translations = map[Locale]map[string]string{
 			"with clarity and peace of mind.",
 
 		KeyHelpQuit: "Press 'q', 'esc', or ctrl+c to quit",
+
+		KeyDockerStatusHealthy:  "Docker: Connected to daemon",
+		KeyDockerStatusDegraded: "Docker: Cannot reach daemon",
+		KeyDockerStatusUnknown:  "Docker: Status check pending",
 	},
 }
