@@ -6,15 +6,26 @@ import (
 	"testing"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/thommorais/docktidy/internal/domain"
 )
 
 type fakeClient struct {
-	pingErr error
+	pingErr      error
+	diskUsage    types.DiskUsage
+	diskUsageErr error
 }
 
-func (f fakeClient) Ping(context.Context) (types.Ping, error) {
+func (f *fakeClient) Ping(context.Context) (types.Ping, error) {
 	return types.Ping{}, f.pingErr
+}
+
+func (f *fakeClient) DiskUsage(context.Context, types.DiskUsageOptions) (types.DiskUsage, error) {
+	if f.diskUsageErr != nil {
+		return types.DiskUsage{}, f.diskUsageErr
+	}
+	return f.diskUsage, nil
 }
 
 func TestNewService_DefaultClient(t *testing.T) {
@@ -97,4 +108,55 @@ func TestNotImplementedMethods(t *testing.T) {
 	if _, err := svc.PruneResources(context.Background(), nil, domain.PruneOptions{}); err != ErrNotImplemented {
 		t.Errorf("PruneResources() error = %v, want ErrNotImplemented", err)
 	}
+}
+
+func TestService_DiskUsage(t *testing.T) {
+	cli := &fakeClient{
+		diskUsage: types.DiskUsage{
+			Images: []*image.Summary{
+				{Size: 2000, Containers: 0, SharedSize: 150},
+				{Size: 1000, Containers: 2, SharedSize: 50},
+			},
+			Containers: []*types.Container{
+				{State: "running", SizeRw: 500},
+				{State: "exited", SizeRw: 800},
+			},
+			Volumes: []*volume.Volume{
+				{UsageData: &volume.UsageData{Size: 1024, RefCount: 1}},
+				{UsageData: &volume.UsageData{Size: 2048, RefCount: 0}},
+			},
+			BuildCache: []*types.BuildCache{
+				{InUse: true, Size: 300},
+				{InUse: false, Size: 700},
+			},
+		},
+	}
+
+	svc := &Service{client: cli}
+	usage, err := svc.DiskUsage(context.Background())
+	if err != nil {
+		t.Fatalf("DiskUsage() error = %v", err)
+	}
+
+	if len(usage.Rows) != 4 {
+		t.Fatalf("DiskUsage() rows = %d, want 4", len(usage.Rows))
+	}
+
+	assertRow := func(t *testing.T, row domain.DiskUsageRow, rType string, total, active int, size, reclaim int64) {
+		t.Helper()
+		if row.Type != rType {
+			t.Fatalf("row.Type = %s, want %s", row.Type, rType)
+		}
+		if row.Total != total || row.Active != active {
+			t.Fatalf("%s counts = (%d,%d), want (%d,%d)", rType, row.Total, row.Active, total, active)
+		}
+		if row.SizeBytes != size || row.ReclaimableBytes != reclaim {
+			t.Fatalf("%s sizes = (%d,%d), want (%d,%d)", rType, row.SizeBytes, row.ReclaimableBytes, size, reclaim)
+		}
+	}
+
+	assertRow(t, usage.Rows[0], diskUsageTypeImages, 2, 1, 3000, 150)
+	assertRow(t, usage.Rows[1], diskUsageTypeContainers, 2, 1, 1300, 800)
+	assertRow(t, usage.Rows[2], diskUsageTypeVolumes, 2, 1, 3072, 2048)
+	assertRow(t, usage.Rows[3], diskUsageTypeBuildCache, 2, 1, 1000, 700)
 }

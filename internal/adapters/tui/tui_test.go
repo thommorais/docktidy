@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/thommorais/docktidy/internal/domain"
 	"github.com/thommorais/docktidy/pkg/text"
 )
 
@@ -133,6 +134,7 @@ func TestModelView(t *testing.T) {
 		"Usage history tracking to protect active resources",
 		"Dry-run mode to preview changes before applying",
 		"Detailed cleanup history and recovery commands",
+		"Press Enter to continue",
 		"Press 'q', 'esc', or ctrl+c to quit",
 	}
 
@@ -197,6 +199,82 @@ func TestWithDockerStatusOption(t *testing.T) {
 
 	if m.dockerStatus.Level != status.Level {
 		t.Fatalf("dockerStatus.Level = %v, want %v", m.dockerStatus.Level, status.Level)
+	}
+}
+
+func TestWithDiskUsageOption(t *testing.T) {
+	usage := domain.DiskUsage{
+		Rows: []domain.DiskUsageRow{
+			{Type: "Images", Total: 2},
+		},
+	}
+
+	app := New(WithDiskUsage(usage))
+	m := initialModel(app.config)
+
+	if len(m.usage.Rows) != 1 {
+		t.Fatalf("usage rows = %d, want 1", len(m.usage.Rows))
+	}
+}
+
+func TestModelNavigationToDashboard(t *testing.T) {
+	usage := domain.DiskUsage{
+		Rows: []domain.DiskUsageRow{
+			{
+				Type:             "Images",
+				Total:            2,
+				Active:           1,
+				SizeBytes:        2048,
+				ReclaimableBytes: 512,
+			},
+		},
+	}
+
+	app := New(WithDiskUsage(usage))
+	m := initialModel(app.config)
+
+	enterMsg := tea.KeyMsg{Type: tea.KeyEnter}
+	dashModel, _ := m.Update(enterMsg)
+	dash := dashModel.(model)
+
+	if dash.screen != screenDashboard {
+		t.Fatalf("screen = %v, want dashboard", dash.screen)
+	}
+
+	view := dash.View()
+	if !strings.Contains(view, "Docker Disk Usage") {
+		t.Fatalf("dashboard view missing title")
+	}
+	if !strings.Contains(view, "Images") {
+		t.Fatalf("dashboard view missing usage row")
+	}
+	if !strings.Contains(view, "Press 'b' to return to the welcome menu") {
+		t.Fatalf("dashboard footer missing back instruction")
+	}
+
+	backMsg := tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'b'}}
+	welcomeModel, _ := dash.Update(backMsg)
+	welcome := welcomeModel.(model)
+	if welcome.screen != screenWelcome {
+		t.Fatalf("screen after back = %v, want welcome", welcome.screen)
+	}
+}
+
+func TestRenderUsageTable(t *testing.T) {
+	rows := []domain.DiskUsageRow{
+		{Type: "Images", Total: 2, Active: 1, SizeBytes: 1024, ReclaimableBytes: 256},
+		{Type: "Containers", Total: 3, Active: 2, SizeBytes: 2048, ReclaimableBytes: 1024},
+	}
+
+	table := renderUsageTable(rows)
+	if !strings.Contains(table, "TYPE") {
+		t.Fatalf("table missing header TYPE")
+	}
+	if !strings.Contains(table, "Images") || !strings.Contains(table, "Containers") {
+		t.Fatalf("table missing row labels")
+	}
+	if !strings.Contains(table, "1.0 kB") {
+		t.Fatalf("table missing formatted size")
 	}
 }
 

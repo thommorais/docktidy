@@ -3,9 +3,14 @@ package tui
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
+
+	units "github.com/docker/go-units"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/thommorais/docktidy/internal/domain"
 	"github.com/thommorais/docktidy/pkg/text"
 )
 
@@ -35,8 +40,16 @@ type StatusMessage struct {
 	Level   StatusLevel
 }
 
+type screenState int
+
+const (
+	screenWelcome screenState = iota
+	screenDashboard
+)
+
 type appConfig struct {
 	dockerStatus StatusMessage
+	usage        domain.DiskUsage
 }
 
 // AppOption configures an App instance.
@@ -49,6 +62,13 @@ func WithDockerStatus(status StatusMessage) AppOption {
 	}
 }
 
+// WithDiskUsage injects disk usage data for the dashboard view.
+func WithDiskUsage(usage domain.DiskUsage) AppOption {
+	return func(cfg *appConfig) {
+		cfg.usage = usage
+	}
+}
+
 func defaultAppConfig() appConfig {
 	txt := text.Default()
 	return appConfig{
@@ -56,6 +76,7 @@ func defaultAppConfig() appConfig {
 			Message: txt.Get(text.KeyDockerStatusUnknown),
 			Level:   StatusLevelUnknown,
 		},
+		usage: domain.DiskUsage{},
 	}
 }
 
@@ -90,6 +111,8 @@ type model struct {
 	height       int
 	text         *text.Text
 	dockerStatus StatusMessage
+	usage        domain.DiskUsage
+	screen       screenState
 }
 
 func initialModel(cfg appConfig) model {
@@ -104,6 +127,8 @@ func initialModel(cfg appConfig) model {
 	return model{
 		text:         text.Default(),
 		dockerStatus: status,
+		usage:        cfg.usage,
+		screen:       screenWelcome,
 	}
 }
 
@@ -122,6 +147,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "q", "esc", "ctrl+c":
 			return m, tea.Quit
+		case "enter":
+			if m.screen == screenWelcome {
+				m.screen = screenDashboard
+			}
+		case "b":
+			if m.screen == screenDashboard {
+				m.screen = screenWelcome
+			}
 		}
 	}
 
@@ -160,31 +193,146 @@ func (m model) View() string {
 		statusStyle = statusStyle.Foreground(lipgloss.Color(colorSecondary))
 	}
 
-	var content string
+	var builder strings.Builder
 
-	content += titleStyle.Render(m.text.Get(text.KeyAppTagline))
-	content += "\n\n"
+	builder.WriteString(titleStyle.Render(m.text.Get(text.KeyAppTagline)))
+	builder.WriteString("\n\n")
 
-	content += messageStyle.Render(m.text.Get(text.KeyWelcomeMessage))
-	content += "\n\n"
-
-	content += featureStyle.Render(fmt.Sprintf("  * %s", m.text.Get(text.KeyWelcomeFeature1)))
-	content += "\n"
-	content += featureStyle.Render(fmt.Sprintf("  * %s", m.text.Get(text.KeyWelcomeFeature2)))
-	content += "\n"
-	content += featureStyle.Render(fmt.Sprintf("  * %s", m.text.Get(text.KeyWelcomeFeature3)))
-	content += "\n"
-	content += featureStyle.Render(fmt.Sprintf("  * %s", m.text.Get(text.KeyWelcomeFeature4)))
-	content += "\n\n"
-
-	renderedStatus := statusStyle.Render(m.dockerStatus.Message)
-	if m.width > 0 {
-		renderedStatus = lipgloss.PlaceHorizontal(m.width, lipgloss.Right, renderedStatus)
+	switch m.screen {
+	case screenDashboard:
+		builder.WriteString(m.renderDashboard(messageStyle))
+	default:
+		builder.WriteString(m.renderWelcome(messageStyle, featureStyle))
 	}
-	content += renderedStatus
-	content += "\n\n"
 
-	content += helpStyle.Render(m.text.Get(text.KeyHelpQuit))
+	builder.WriteString("\n")
+	builder.WriteString(m.renderStatusLine(statusStyle))
+	builder.WriteString("\n\n")
 
-	return content
+	builder.WriteString(helpStyle.Render(m.footerMessage()))
+
+	return builder.String()
+}
+
+func (m model) renderWelcome(messageStyle lipgloss.Style, featureStyle lipgloss.Style) string {
+	var b strings.Builder
+
+	b.WriteString(messageStyle.Render(m.text.Get(text.KeyWelcomeMessage)))
+	b.WriteString("\n\n")
+
+	features := []string{
+		m.text.Get(text.KeyWelcomeFeature1),
+		m.text.Get(text.KeyWelcomeFeature2),
+		m.text.Get(text.KeyWelcomeFeature3),
+		m.text.Get(text.KeyWelcomeFeature4),
+	}
+
+	for _, feature := range features {
+		b.WriteString(featureStyle.Render(fmt.Sprintf("  * %s", feature)))
+		b.WriteString("\n")
+	}
+
+	return strings.TrimRight(b.String(), "\n")
+}
+
+func (m model) renderDashboard(messageStyle lipgloss.Style) string {
+	var b strings.Builder
+
+	headerStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color(colorAccent)).
+		Padding(0, 2).
+		MarginBottom(1)
+
+	b.WriteString(headerStyle.Render(m.text.Get(text.KeyDashboardTitle)))
+	b.WriteString("\n")
+
+	if len(m.usage.Rows) == 0 {
+		b.WriteString(messageStyle.Render(m.text.Get(text.KeyDashboardEmpty)))
+		return b.String()
+	}
+
+	table := renderUsageTable(m.usage.Rows)
+	b.WriteString(table)
+
+	return strings.TrimRight(b.String(), "\n")
+}
+
+func (m model) renderStatusLine(style lipgloss.Style) string {
+	rendered := style.Render(m.dockerStatus.Message)
+	if m.width > 0 {
+		return lipgloss.PlaceHorizontal(m.width, lipgloss.Right, rendered)
+	}
+	return rendered
+}
+
+func (m model) footerMessage() string {
+	var parts []string
+	switch m.screen {
+	case screenDashboard:
+		parts = append(parts, m.text.Get(text.KeyDashboardBack))
+	default:
+		parts = append(parts, m.text.Get(text.KeyWelcomeContinue))
+	}
+	parts = append(parts, m.text.Get(text.KeyHelpQuit))
+	return strings.Join(parts, " • ")
+}
+
+func renderUsageTable(rows []domain.DiskUsageRow) string {
+	headers := []string{"TYPE", "TOTAL", "ACTIVE", "SIZE", "RECLAIMABLE"}
+	table := make([][]string, 0, len(rows)+1)
+	table = append(table, headers)
+
+	for _, row := range rows {
+		table = append(table, []string{
+			row.Type,
+			strconv.Itoa(row.Total),
+			strconv.Itoa(row.Active),
+			formatBytes(row.SizeBytes),
+			formatBytes(row.ReclaimableBytes),
+		})
+	}
+
+	if len(table) == 1 {
+		return ""
+	}
+
+	widths := make([]int, len(headers))
+	for _, row := range table {
+		for i, col := range row {
+			if len(col) > widths[i] {
+				widths[i] = len(col)
+			}
+		}
+	}
+
+	totalWidth := 0
+	for _, w := range widths {
+		totalWidth += w
+	}
+	totalWidth += (len(widths) - 1) * 3
+
+	var b strings.Builder
+	for i, row := range table {
+		for j, col := range row {
+			fmt.Fprintf(&b, "%-*s", widths[j], col)
+			if j < len(row)-1 {
+				b.WriteString("   ")
+			}
+		}
+		b.WriteString("\n")
+		if i == 0 {
+			b.WriteString(strings.Repeat("-", totalWidth))
+			b.WriteString("\n")
+		}
+	}
+
+	return b.String()
+}
+
+func formatBytes(size int64) string {
+	if size <= 0 {
+		return "0 B"
+	}
+	return units.HumanSizeWithPrecision(float64(size), 1)
 }

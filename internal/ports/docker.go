@@ -12,6 +12,9 @@ type DockerService interface {
 	// ListResources retrieves all resources of specified types
 	ListResources(ctx context.Context, types []domain.ResourceType) ([]domain.Resource, error)
 
+	// DiskUsage retrieves aggregated disk usage information
+	DiskUsage(ctx context.Context) (domain.DiskUsage, error)
+
 	// PruneResources removes resources matching the criteria
 	PruneResources(ctx context.Context, candidates []domain.PruneCandidate, opts domain.PruneOptions) (domain.PruneResult, error)
 

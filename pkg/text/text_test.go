@@ -68,6 +68,12 @@ func TestGet(t *testing.T) {
 			want:   "Press 'q', 'esc', or ctrl+c to quit",
 		},
 		{
+			name:   "welcome continue key",
+			locale: LocaleEN,
+			key:    KeyWelcomeContinue,
+			want:   "Press Enter to continue",
+		},
+		{
 			name:   "docker status key",
 			locale: LocaleEN,
 			key:    KeyDockerStatusHealthy,
@@ -110,10 +116,14 @@ func TestAllKeysHaveTranslations(t *testing.T) {
 	keys := []string{
 		KeyAppTagline,
 		KeyWelcomeMessage,
+		KeyWelcomeContinue,
 		KeyWelcomeFeature1,
 		KeyWelcomeFeature2,
 		KeyWelcomeFeature3,
 		KeyWelcomeFeature4,
+		KeyDashboardTitle,
+		KeyDashboardBack,
+		KeyDashboardEmpty,
 		KeyHelpQuit,
 		KeyDockerStatusHealthy,
 		KeyDockerStatusDegraded,
